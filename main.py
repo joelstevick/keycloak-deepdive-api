@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from typing import List
 
-SECRET_KEY = "OdESmUxkGKaiSxeeP0TI9eH9HMK01Det"
+SECRET_KEY = "OdESmUxkGKaiSxeeP0TI9eH9HMK01Det" # in a real app use secrets
 ALGORITHM = "HS256"  # The algorithm used for signing the JWT
 
 # OAuth2 scheme
