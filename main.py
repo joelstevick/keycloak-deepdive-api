@@ -1,9 +1,10 @@
 from fastapi import FastAPI, Depends, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from typing import List
 
-SECRET_KEY = "OdESmUxkGKaiSxeeP0TI9eH9HMK01Det" # in a real app use secrets
+SECRET_KEY = "OdESmUxkGKaiSxeeP0TI9eH9HMK01Det"  # In a real app use secrets
 ALGORITHM = "HS256"  # The algorithm used for signing the JWT
 
 # OAuth2 scheme
@@ -11,6 +12,19 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 app = FastAPI()
 
+# CORS settings
+origins = [
+    "http://localhost:8100",  # Your frontend URL
+    # Add other origins if needed
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all HTTP methods
+    allow_headers=["*"],  # Allow all headers
+)
 
 def verify_token(token: str, required_scopes: List[str]):
     try:
@@ -25,18 +39,15 @@ def verify_token(token: str, required_scopes: List[str]):
     except JWTError as e:
         raise HTTPException(status_code=403, detail=f"Could not validate credentials: {str(e)}")
 
-
 @app.get("/read")
 async def read_data(token: str = Depends(oauth2_scheme)):
     verify_token(token, ["read-access"])  # Validate token for read access
     return {"message": "You have read access"}
 
-
 @app.post("/write")
 async def write_data(token: str = Depends(oauth2_scheme)):
     verify_token(token, ["write-access"])  # Validate token for write access
     return {"message": "You have write access"}
-
 
 if __name__ == "__main__":
     import uvicorn
