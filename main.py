@@ -27,6 +27,7 @@ def verify_token(token: str, required_scopes: List[str]):
         # Decode the JWT
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         scopes = payload.get("scope", "").split(" ")
+        print(f"verify_token: {scopes}, required_scopes: {required_scopes}")
         # Check if the required scopes are in the token
         if not all(scope in scopes for scope in required_scopes):
             raise HTTPException(status_code=403, detail="Not enough permissions")
