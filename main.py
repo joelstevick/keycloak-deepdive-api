@@ -32,17 +32,17 @@ JWKS_URL = f"http://keycloak:8080/realms/{REALM}/protocol/openid-connect/certs"
 def get_public_key():
     try:
         response = requests.get(JWKS_URL)
-        response.raise_for_status()  # Raise an error for bad responses
+        response.raise_for_status()  # Ensure we raise an error for bad responses
         jwks = response.json()
 
-        # Ensure keys are available
+        print(f"jwks: {jwks}")
         if not jwks.get('keys'):
             raise ValueError("No keys found in JWKS")
 
-        # Assuming you want the first key in the JWKS
+        # Get the first key's X.509 certificate and convert it to PEM format
         public_key = jwks['keys'][0]['x5c'][0]
 
-        # Format it as a PEM key
+        # Proper PEM format
         pem_key = f"-----BEGIN CERTIFICATE-----\n{public_key}\n-----END CERTIFICATE-----"
         return pem_key
     except requests.exceptions.HTTPError as e:
