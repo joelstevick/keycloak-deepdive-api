@@ -30,14 +30,25 @@ JWKS_URL = f"http://keycloak:8080/realms/{REALM}/protocol/openid-connect/certs"
 
 
 def get_public_key():
-    response = requests.get(JWKS_URL)
-    response.raise_for_status()  # Ensure we raise an error for bad responses
-    jwks = response.json()
-    # Get the first key's public key in the right format
-    public_key = jwks['keys'][0]['x5c'][0]
-    # Convert the key to PEM format
-    return f"-----BEGIN PUBLIC KEY-----\n{public_key}\n-----END PUBLIC KEY-----"
+    try:
+        response = requests.get(JWKS_URL)
+        response.raise_for_status()  # Raise an error for bad responses
+        jwks = response.json()
 
+        # Assuming you want the first key in the JWKS
+        if jwks['keys']:
+            public_key = jwks['keys'][0]['x5c'][0]
+            # Format it as a PEM key
+            pem_key = f"-----BEGIN CERTIFICATE-----\n{public_key}\n-----END CERTIFICATE-----"
+            return pem_key
+        else:
+            raise ValueError("No keys found in JWKS")
+    except requests.exceptions.HTTPError as e:
+        print(f"Failed to fetch JWKS: {e}, URL: {JWKS_URL}")
+        raise
+    except Exception as e:
+        print(f"Error in getting public key: {e}")
+        raise
 
 def verify_token(token: str, required_scopes: List[str]):
     try:
