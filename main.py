@@ -36,6 +36,7 @@ def verify_token(token: str, required_scopes: List[str]):
 
 @app.get("/read")
 async def read_data(token: str = Depends(oauth2_scheme)):
+    print(f"/read {token}")
     verify_token(token, ["read-access"])  # Validate token for read access
     return {"message": "You have read access"}
 
