@@ -26,14 +26,17 @@ app.add_middleware(
 
 # Set your realm name here
 REALM = "my-realm"
-JWKS_URL = f"http://keycloak:8080/realms/{REALM}/protocol/openid-connect/certs"
+JWKS_URL = f"http://keycloak:8080/auth/realms/{REALM}/protocol/openid-connect/certs"
 
 
 def get_public_key():
     response = requests.get(JWKS_URL)
+    response.raise_for_status()  # Ensure we raise an error for bad responses
     jwks = response.json()
-    # Get the first key's public key
-    return jwks['keys'][0]['x5c'][0]  # Adjust if necessary to select the correct key
+    # Get the first key's public key in the right format
+    public_key = jwks['keys'][0]['x5c'][0]
+    # Convert the key to PEM format
+    return f"-----BEGIN PUBLIC KEY-----\n{public_key}\n-----END PUBLIC KEY-----"
 
 
 def verify_token(token: str, required_scopes: List[str]):
