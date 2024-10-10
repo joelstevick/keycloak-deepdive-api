@@ -1,11 +1,9 @@
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
-from fastapi.middleware.cors import CORSMiddleware
 from jose import JWTError, jwt
 from typing import List
 
-# Constants
-SECRET_KEY = "your_secret_key"  # Replace with your actual secret key
+SECRET_KEY = "OdESmUxkGKaiSxeeP0TI9eH9HMK01Det"
 ALGORITHM = "HS256"  # The algorithm used for signing the JWT
 
 # OAuth2 scheme
@@ -13,18 +11,10 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 app = FastAPI()
 
-# CORS middleware setup
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins, adjust as needed for production
-    allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods (GET, POST, etc.)
-    allow_headers=["*"],  # Allows all headers
-)
 
 def verify_token(token: str, required_scopes: List[str]):
     try:
-        # Decode the JWT
+        # Decode the JWT using the secret key
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         scopes = payload.get("scope", "").split(" ")
         print(f"verify_token: {scopes}, required_scopes: {required_scopes}")
@@ -33,23 +23,22 @@ def verify_token(token: str, required_scopes: List[str]):
             raise HTTPException(status_code=403, detail="Not enough permissions")
         return payload
     except JWTError as e:
-        print(f"jwt error: {e}")
-        raise HTTPException(
-            status_code=403,
-            detail=f"Could not validate credentials: {str(e)}"
-        )
+        raise HTTPException(status_code=403, detail=f"Could not validate credentials: {str(e)}")
+
 
 @app.get("/read")
 async def read_data(token: str = Depends(oauth2_scheme)):
-    print(f"/read {token}")
     verify_token(token, ["read-access"])  # Validate token for read access
     return {"message": "You have read access"}
+
 
 @app.post("/write")
 async def write_data(token: str = Depends(oauth2_scheme)):
     verify_token(token, ["write-access"])  # Validate token for write access
     return {"message": "You have write access"}
 
+
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)
