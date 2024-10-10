@@ -32,8 +32,12 @@ def verify_token(token: str, required_scopes: List[str]):
         if not all(scope in scopes for scope in required_scopes):
             raise HTTPException(status_code=403, detail="Not enough permissions")
         return payload
-    except JWTError:
-        raise HTTPException(status_code=403, detail="Could not validate credentials")
+    except JWTError as e:
+        print(f"jwt error: {e}")
+        raise HTTPException(
+            status_code=403,
+            detail=f"Could not validate credentials: {str(e)}"
+        )
 
 @app.get("/read")
 async def read_data(token: str = Depends(oauth2_scheme)):
