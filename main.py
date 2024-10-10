@@ -37,6 +37,7 @@ def verify_token(token: str, required_scopes: List[str]):
             raise HTTPException(status_code=403, detail="Not enough permissions")
         return payload
     except JWTError as e:
+        print(f"jwt error: {e}, {token}")
         raise HTTPException(status_code=403, detail=f"Could not validate credentials: {str(e)}")
 
 @app.get("/read")
