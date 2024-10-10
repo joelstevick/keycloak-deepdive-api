@@ -4,6 +4,8 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from typing import List
 import requests
+from cryptography import x509
+from cryptography.hazmat.backends import default_backend
 
 # OAuth2 scheme
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -38,12 +40,15 @@ def get_public_key():
         if not jwks.get('keys'):
             raise ValueError("No keys found in JWKS")
 
-        # Get the first key's X.509 certificate and convert it to PEM format
+        # Get the first key's X.509 certificate
         public_key = jwks['keys'][0]['x5c'][0]
 
-        # Proper PEM format
+        # Create PEM format
         pem_key = f"-----BEGIN CERTIFICATE-----\n{public_key}\n-----END CERTIFICATE-----"
-        return pem_key
+
+        # Load the public key from the certificate
+        cert = x509.load_pem_x509_certificate(pem_key.encode(), default_backend())
+        return cert.public_key()  # Returns the public key object
     except requests.exceptions.HTTPError as e:
         print(f"Failed to fetch JWKS: {e}, URL: {JWKS_URL}")
         raise
@@ -54,7 +59,6 @@ def get_public_key():
 def verify_token(token: str, required_scopes: List[str]):
     try:
         public_key = get_public_key()
-        print(f"Verifying public key: {public_key}")
 
         # Decode the JWT using the public key
         payload = jwt.decode(token, public_key, algorithms=["RS256"])
