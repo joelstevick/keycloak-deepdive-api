@@ -26,7 +26,7 @@ app.add_middleware(
 
 # Set your realm name here
 REALM = "my-realm"
-JWKS_URL = f"http://localhost:8080/realms/{REALM}/protocol/openid-connect/certs"
+JWKS_URL = f"http://keycloak:8080/realms/{REALM}/protocol/openid-connect/certs"
 
 
 def get_public_key():
