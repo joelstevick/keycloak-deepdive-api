@@ -35,14 +35,16 @@ def get_public_key():
         response.raise_for_status()  # Raise an error for bad responses
         jwks = response.json()
 
-        # Assuming you want the first key in the JWKS
-        if jwks['keys']:
-            public_key = jwks['keys'][0]['x5c'][0]
-            # Format it as a PEM key
-            pem_key = f"-----BEGIN CERTIFICATE-----\n{public_key}\n-----END CERTIFICATE-----"
-            return pem_key
-        else:
+        # Ensure keys are available
+        if not jwks.get('keys'):
             raise ValueError("No keys found in JWKS")
+
+        # Assuming you want the first key in the JWKS
+        public_key = jwks['keys'][0]['x5c'][0]
+
+        # Format it as a PEM key
+        pem_key = f"-----BEGIN CERTIFICATE-----\n{public_key}\n-----END CERTIFICATE-----"
+        return pem_key
     except requests.exceptions.HTTPError as e:
         print(f"Failed to fetch JWKS: {e}, URL: {JWKS_URL}")
         raise
