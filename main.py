@@ -5,7 +5,7 @@ from jose import JWTError, jwt
 from typing import List
 
 SECRET_KEY = "OdESmUxkGKaiSxeeP0TI9eH9HMK01Det"  # In a real app use secrets
-ALGORITHM = "HS256"  # The algorithm used for signing the JWT
+ALGORITHM = "RS256"  # The algorithm used for signing the JWT
 
 # OAuth2 scheme
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
