@@ -62,7 +62,7 @@ def verify_token(token: str, required_scopes: List[str]):
 
         # Decode the JWT using the public key
         print(f"starting decode")
-        payload = jwt.decode(token, public_key, algorithms=["RS256"])
+        payload = jwt.decode(token, public_key, algorithms=["RS256"], audience="my-app")
         print(f"payload: {payload}")
         scopes = payload.get("scope", "").split(" ")
 
