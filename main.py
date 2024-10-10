@@ -35,7 +35,6 @@ def get_public_key():
         response.raise_for_status()  # Ensure we raise an error for bad responses
         jwks = response.json()
 
-        print(f"jwks: {jwks}")
         if not jwks.get('keys'):
             raise ValueError("No keys found in JWKS")
 
@@ -55,6 +54,8 @@ def get_public_key():
 def verify_token(token: str, required_scopes: List[str]):
     try:
         public_key = get_public_key()
+        print(f"Verifying public key: {public_key}")
+
         # Decode the JWT using the public key
         payload = jwt.decode(token, public_key, algorithms=["RS256"])
         scopes = payload.get("scope", "").split(" ")
