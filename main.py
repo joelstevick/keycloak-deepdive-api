@@ -33,7 +33,7 @@ app.add_middleware(
 )
 
 # Set your realm name here
-REALM = "my-realm-2"
+REALM = "my-realm"
 JWKS_URL = f"http://keycloak:8080/realms/{REALM}/protocol/openid-connect/certs"
 
 def log_request_and_response(response: Response):
